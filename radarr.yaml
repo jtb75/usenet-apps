@@ -37,14 +37,28 @@ spec:
               name: radarr-movies
       volumes:
         - name: radarr-config
-          hostPath:
-            path: /depot/media/Usenet/radarr
+          persistentVolumeClaim:
+            claimName: radarr-config-pvc
         - name: radarr-downloads
           hostPath:
             path: /depot/media/Downloads
         - name: radarr-movies
           hostPath:
             path: /depot/media/Movies
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: radarr-config-pvc
+  namespace: usenet-apps
+spec:
+  storageClassName: managed-nfs-storage
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
 ---
 kind: Service
 apiVersion: v1

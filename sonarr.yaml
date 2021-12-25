@@ -37,14 +37,28 @@ spec:
               name: sonarr-movies
       volumes:
         - name: sonarr-config
-          hostPath:
-            path: /depot/media/Usenet/sonarr
+          persistentVolumeClaim:
+            claimName: sonarr-config-pvc
         - name: sonarr-downloads
           hostPath:
             path: /depot/media/Downloads
         - name: sonarr-movies
           hostPath:
-            path: /depot/media/Movies
+            path: /depot/media/Series
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: sonarr-config-pvc
+  namespace: usenet-apps
+spec:
+  storageClassName: managed-nfs-storage
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
 ---
 kind: Service
 apiVersion: v1
