@@ -33,8 +33,8 @@ spec:
               name: sonarr-config
             - mountPath: /downloads
               name: sonarr-downloads
-            - mountPath: /movies
-              name: sonarr-movies
+            - mountPath: /series
+              name: sonarr-series
       volumes:
         - name: sonarr-config
           persistentVolumeClaim:
@@ -42,7 +42,7 @@ spec:
         - name: sonarr-downloads
           hostPath:
             path: /depot/media/Downloads
-        - name: sonarr-movies
+        - name: sonarr-series
           hostPath:
             path: /depot/media/Series
 ---
