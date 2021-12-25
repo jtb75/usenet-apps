@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr-deployment
+  namespace: usenet-apps
+  labels:
+    app: sonarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      containers:
+        - name: sonarr
+          image: linuxserver/sonarr
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "500m"
+            limits:
+              memory: "256Mi"
+              cpu: "750m"
+          ports:
+            - containerPort: 8989
+          volumeMounts:
+            - mountPath: /config
+              name: sonarr-config
+            - mountPath: /downloads
+              name: sonarr-downloads
+            - mountPath: /movies
+              name: sonarr-movies
+      volumes:
+        - name: sonarr-config
+          hostPath:
+            path: /depot/media/Usenet/sonarr
+        - name: sonarr-downloads
+          hostPath:
+            path: /depot/media/Downloads
+        - name: sonarr-movies
+          hostPath:
+            path: /depot/media/Movies
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: sonarr-service
+  namespace: usenet-apps
+spec:
+  selector:
+    app: sonarr
+  ports:
+    - protocol: TCP
+      port: 8989
+      targetPort: 8989
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sonarr-ingress
+  namespace: usenet-apps
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: sonarr.ng20.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sonarr-service
+                port:
+                  number: 8989
